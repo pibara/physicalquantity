@@ -214,7 +214,7 @@ from physicalquantity import PhysicalQuantity as PQ
 temperature = PQ(79, "fahrenheid").normalized()  # normalize to Kelvin
 ```
 
-# as
+# as\_absolute / as\_relative
 
 The reverse of normalization comes in two variants. An absolute and a relative variant. 
 
@@ -229,6 +229,8 @@ from physicalquantity import PhysicalQuantity as PQ
 
 temperature = (PQ(76,"fahrenheid") - PQ(19,"celcius")).as_relative("fahrenheid")
 ```
+
+For quantities without an implied offset the two operations are equivalent.
 
 ```python
 from physicalquantity import PhysicalQuantity as PQ
