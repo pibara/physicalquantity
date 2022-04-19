@@ -220,13 +220,15 @@ class PhysicalQuantity:
             self,
             value,
             name="one",
-            dimensions=None):
+            dimensions=None,
+            scale=1.0,
+            offset=0.0):
         self.value = value
-        self.offset = 0.0
-        self.scale = 1.0
         if name is None and dimensions is not None:
             self.dimensions = dimensions
             self.unit_name = None
+            self.scale = scale
+            self.offset = offset
             return
         unit = _name_to_unit(name)
         self.unit_name = unit["unit_name"] 
@@ -285,6 +287,12 @@ class PhysicalQuantity:
         othern = other.normalized()
         if othern.dimensions != [0,0,0,0,0,0,0]:
             raise RuntimeError("Can only raise to a dimensionless power")
+        result_dimensions = [x * othern.value for x in selfn.dimensions]
+        result_value = selfn.value ** othern.value
+        si_name = _find_si_name(result_dimensions)
+        if si_name is None:
+            return PhysicalQuantity(result_value, None, result_dimensions)
+        return PhysicalQuantity(result_value, si_name)
 
     def __eq__(self, other):
         selfn = self.normalized()
@@ -334,18 +342,61 @@ class PhysicalQuantity:
         unit = _name_to_unit(name)
         return self.dimensions == unit["dim_array"]
 
-    def json(self):
+    def as_dict(self):
         result = {}
         result["value"] = self.value
         if self.unit_name is None:
             result["unit"] = {}
-            result["unit"]["dimensions"] = self.dimensions
+            result["unit"]["dimensions"] = {}
+            for idx, name in enumerate(["length",
+                                        "mass",
+                                        "time",
+                                        "current",
+                                        "temperature",
+                                        "substance",
+                                        "intensity"]):
+                if self.dimensions[idx] != 0:
+                    result["unit"]["dimensions"][name]= self.dimensions[idx]
             if self.scale != 1.0:
                 result["unit"]["scale"] = self.scale
             if self.offset != 0.0:
                 result["unit"]["offset"] = self.offset
         else:
             result["unit"] = self.unit_name
-        return json.dumps(result, indent=4, sort_keys=True)
+        return result
 
+    def json(self):
+        return json.dumps(self.as_dict(), indent=4, sort_keys=True)
 
+def from_dict(quantity_dict):
+    if "value" not in quantity_dict:
+        raise RuntimeError("No value key in dict")
+    if "unit" not in quantity_dict:
+        raise RuntimeError("No unit key in dict")
+    if isinstance(quantity_dict["unit"],str):
+        return PhysicalQuantity(quantity_dict["value"], quantity_dict["unit"])
+    unit_dict = quantity_dict["unit"]
+    offset = 0.0
+    if "offset" in unit_dict:
+        offset = unit_dict["offset"]
+    scale = 1.0
+    if "scale" in unit_dict:
+        offset = unit_dict["scale"]
+    dimension_array = []
+    if "dimensions" in unit_dict:
+        dimensions = unit_dict["dimensions"]
+    else:
+        raise RuntimeError("No dimensions in in dict")
+    for dimension in ["length",
+                      "mass",
+                      "time",
+                      "current",
+                      "temperature",
+                      "substance",
+                      "intensity"]:
+        if dimension in dimensions:
+            dimension_array.append(dimensions[dimension])
+        else:
+            dimension_array.append(0)
+    return PhysicalQuantity(quantity_dict["value"], None, dimension_array, scale, offset)
+    
