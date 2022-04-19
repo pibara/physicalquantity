@@ -6,7 +6,7 @@ here = path.abspath(path.dirname(__file__))
 
 setup(
     name='physicalquantity',
-    version='0.0.2',
+    version='0.0.3',
     description='Simple library for working with physical quantities',
     long_description="""A simple library for working with physical quantities. 
     Implements basic dimensional decomposition of physical quantities and provides
@@ -23,7 +23,7 @@ setup(
     unified serialization or rather serializisability of physical quantities. 
 
     """,
-    url='https://github.com/pibara/aioflureedb',
+    url='https://github.com/pibara/physicalquantity',
     author='Rob J Meijer',
     author_email='pibara@gmail.com',
     license='BSD',

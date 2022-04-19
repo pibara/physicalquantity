@@ -1,41 +1,25 @@
 # Physical Quantity library for Python
 
-This is a really simple Physical Quantity library for Python that implements basic dimensional decomposition and
-operators for physical quantities. Most of the library is centered around SI units, but there is currently partial
-support for non-SI units as well. 
+A simple library for working with physical quantities. 
+Implements basic dimensional decomposition of physical quantities and provides
+basic operations (adition, subtraction, multiplication, division, comparison) 
+for working with these quantities.
 
-The current release is a real early beta. 
+Support for non-SI units is available but most operations will result in 
+implicit conversions to SI units. Use the *as_absolute*() or *as_relative*()
+methods to convert back to the desired non-SI units.
 
-Some examples of usage: 
+Note that while this library supports a wide range of the dimentional analysis
+and related integrity artifacts of working with physical quantities, the prime 
+goal of this library isn't the dimentional integrity of code, but instead the
+unified serialization or rather serializisability of physical quantities.
 
-```python
-from physicalquantity import PhysicalQuantity as PQ
-
-voltage = PQ(20,"miliampere") * PQ(15,"kiloohm")
-print(voltage.value, voltage.unit_name, voltage.same_dimensions("milivolt"))
-```
-
-```
-300.0 volt True
-```
-
-An example of the current (limited) support for non-SI units. 
-```python
-from physicalquantity import PhysicalQuantity as PQ
-
-temperature = (PQ(76,"fahrenheid") + PQ(19,"celcius") / PQ(2, "one")).as_absolute("fahrenheid")
-print(temperature.value, temperature.unit_name)
-temperature2 = temperature.as_absolute("fahrenheid")
-print(temperature2.value, temperature2.unit_name)
-temperature3 = (PQ(76,"fahrenheid") - PQ(19,"celcius")).as_relative("fahrenheid")
-print(temperature3.value, temperature3.unit_name)
-```
+## install
 
 ```
-881.8944222256 kelvin
-71.10001999735194 fahrenheid
-9.799960005296041 fahrenheid
+pip install physicalquantity
 ```
+
 
 ## constructor
 
