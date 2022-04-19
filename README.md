@@ -158,7 +158,7 @@ An other set of units are the transposed and/or scaled units. Note that when qua
 * year
   * yr
 * celcius
-* fahrenheid
+* fahrenheit
 * are
 * hectare
 * acre
@@ -189,7 +189,7 @@ Each of the units and their aliases may be prefixed with one of the metric prefi
 * deca
 * deci
 * centi
-* mili
+* milli
 * micro
 * nano
 * pico
@@ -211,7 +211,7 @@ While many operations will return an SI normalized result, it is possible to do 
 ```
 from physicalquantity import PhysicalQuantity as PQ
 
-temperature = PQ(79, "fahrenheid").normalized()  # normalize to Kelvin
+temperature = PQ(79, "fahrenheit").normalized()  # normalize to Kelvin
 ```
 
 # as\_absolute / as\_relative
@@ -221,13 +221,13 @@ The reverse of normalization comes in two variants. An absolute and a relative v
 ```python
 from physicalquantity import PhysicalQuantity as PQ
 
-temperature = (PQ(76,"fahrenheid") + PQ(19,"celcius") / PQ(2, "one")).as_absolute("fahrenheid")
+temperature = (PQ(76,"fahrenheit") + PQ(19,"celcius") / PQ(2, "one")).as_absolute("fahrenheit")
 ``` 
 
 ```python
 from physicalquantity import PhysicalQuantity as PQ
 
-temperature = (PQ(76,"fahrenheid") - PQ(19,"celcius")).as_relative("fahrenheid")
+temperature = (PQ(76,"fahrenheit") - PQ(19,"celcius")).as_relative("fahrenheit")
 ```
 
 For quantities without an implied offset the two operations are equivalent.
@@ -262,15 +262,15 @@ It is important to note that not all resulting values will have a *unit_name* va
 will always uniquely identify the units used.
 
 ```python
-voltage1 = PQ(20,"miliampere") * PQ(15,"kiloohm")
+voltage1 = PQ(20,"milliampere") * PQ(15,"kiloohm")
 
 voltage2 = PQ(100, "watt") / PQ(6, "ampere")
 
 voltage3 = voltage1 - voltage2
 
-voltage4 = (voltage1 + voltage2) / PQ(2, "one")
+voltage4 = (voltage1 + voltage2) / PQ(2)
 
-volume = PQ(0.15, "metre") ** 3
+volume = PQ(0.15, "metre") ** PQ(3)
 ```
 
 # comparison
