@@ -39,7 +39,7 @@ print(temperature3.value, temperature3.unit_name)
 
 ## constructor
 
-The PhysicalQuantity takes two arguments. The first argument is a numeric value for the physical quantity, the second argument is the name of the units or physical phenonemon the physical quantity refers to. This name can be prefixed with any of the metric prefixes from yotta down to yocto.
+The PhysicalQuantity (in normal use) takes up to two arguments. The first argument (defaulting to zero) is a numeric value for the physical quantity, the second argument (defaulting to "one") is the name of the units or physical phenonemon the physical quantity refers to. This name can be prefixed with any of the metric prefixes from yotta down to yocto.
 
 We distinguish between:
 
@@ -246,6 +246,13 @@ from physicalquantity import PhysicalQuantity as PQ
 temperature = (PQ(76,"fahrenheid") - PQ(19,"celcius")).as_relative("fahrenheid")
 ```
 
+```python
+from physicalquantity import PhysicalQuantity as PQ
+
+distance = PQ(1,"attoparsec").as_absolute("centiinch").as_dict()
+
+```
+
 # dimensions check
 
 Often you will want to check if a wuantity has the expected dimensions
@@ -258,11 +265,11 @@ assert temperature.same_dimensions("temperature")
 
 The following operators are supported:
 
-* * : multiplication
-* / : division
-* + : addition
-* - : subtraction
-* ** : power 
+* \* : multiplication
+* \/ : division
+* \+ : addition
+* \- : subtraction
+* \*\* : power 
 
 Impossible operations will throw an RuntimeError, If the operation succeed, the result will always have a normalized value.
 It is important to note that not all resulting values will have a *unit_name* value. The *dimensions* value of the PhysicalQuantity though
@@ -289,4 +296,26 @@ if voltage2 > voltage1:
     ...
 ```
 
+# serialization
+
+While PhysicalQuantity has a *json* method for serializing a single PhysicalQuantity as JSON, the expected usage would be the use of a serializable PhysicalQuantity structure as part of a larger structure.
+
+```python
+import json
+from physicalquantity import PhysicalQuantity as PQ
+
+collection = {}
+collections["temperature"] = PQ(94, "fahrenheit").normalized().as_dict()
+collections["distance"] = PQ(1,"attoparsec").normalized().as_dict()
+serialized = json.dumps(collection)
+```
+
+```python
+import json
+from physicalquantity import PhysicalQuantity as PQ
+from physicalquantity import from_dict as pq_from_dict
+
+collection = json.loads(serialized)
+temperature = pq_from_dict(collection["temperature"])
+```
 

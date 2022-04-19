@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+"""Simple library for working with physical quantities"""
 import json
 
 ISO_UNITS = {
@@ -131,11 +132,11 @@ ISO_PREFIX = {
 }
 
 def _name_to_unit(name):
+    # pylint: disable = too-many-statements, too-many-branches, too-many-locals
     offset = 0.0
     scale = 1.0
     rescale = 1.0
     unit_name = name
-    uses_prefix = False
     full_prefix = ""
     fullname = name
     for prefix,mscale in ISO_PREFIX.items():
@@ -196,10 +197,8 @@ def _name_to_unit(name):
 
 def _find_si_name(dimarr):
     for key, val in ISO_UNITS.items():
-        dimensions = {}
         dimension_array = []
-        if "dimensions" in val:
-            dimensions = val["dimensions"]
+        dimensions = val.get("dimensions",{})
         for dimension in ["length",
                           "mass",
                           "time",
@@ -216,6 +215,7 @@ def _find_si_name(dimarr):
     return None
 
 class PhysicalQuantity:
+    """Single class for representing any type of physical unit"""
     def __init__(
             self,
             value=0.0,
@@ -223,6 +223,8 @@ class PhysicalQuantity:
             dimensions=None,
             scale=1.0,
             offset=0.0):
+        """Constructor"""
+        # pylint: disable=too-many-arguments
         self.value = value
         if name is None and dimensions is not None:
             self.dimensions = dimensions
@@ -231,18 +233,20 @@ class PhysicalQuantity:
             self.offset = offset
             return
         unit = _name_to_unit(name)
-        self.unit_name = unit["unit_name"] 
+        self.unit_name = unit["unit_name"]
         self.scale = unit["scale"]
         self.offset = unit["offset"]
         self.dimensions = unit["dim_array"]
 
     def normalized(self):
+        """Normalize to ISO units"""
         si_name = _find_si_name(self.dimensions)
         if si_name is None:
             return PhysicalQuantity(self.value * self.scale + self.offset, None, self.dimensions)
         return PhysicalQuantity(self.value * self.scale + self.offset, si_name)
 
     def __mul__(self, other):
+        """Multiplication"""
         selfn = self.normalized()
         othern = other.normalized()
         result_dimensions = [x + y for (x, y) in zip(selfn.dimensions, othern.dimensions)]
@@ -253,6 +257,7 @@ class PhysicalQuantity:
         return PhysicalQuantity(result_value, si_name)
 
     def __truediv__(self, other):
+        """Division"""
         selfn = self.normalized()
         othern = other.normalized()
         result_dimensions = [x - y for (x, y) in zip(selfn.dimensions, othern.dimensions)]
@@ -269,20 +274,20 @@ class PhysicalQuantity:
             raise RuntimeError("Can't add up physical quantities with non-matching units")
         if selfn.unit_name is None:
             return PhysicalQuantity(selfn.value + othern.value, None, selfn.dimensions)
-        else:
-            return PhysicalQuantity(selfn.value + othern.value, selfn.unit_name)
+        return PhysicalQuantity(selfn.value + othern.value, selfn.unit_name)
 
     def __sub__(self, other):
+        """Subtract"""
         selfn = self.normalized()
         othern = other.normalized()
         if selfn.dimensions != othern.dimensions:
             raise RuntimeError("Can't add up physical quantities with non-matching units")
         if selfn.unit_name is None:
             return PhysicalQuantity(selfn.value - othern.value, None, selfn.dimensions)
-        else:
-            return PhysicalQuantity(selfn.value - othern.value, selfn.unit_name)
+        return PhysicalQuantity(selfn.value - othern.value, selfn.unit_name)
 
     def __pow__(self, other):
+        """To the power"""
         selfn = self.normalized()
         othern = other.normalized()
         if othern.dimensions != [0,0,0,0,0,0,0]:
@@ -295,36 +300,43 @@ class PhysicalQuantity:
         return PhysicalQuantity(result_value, si_name)
 
     def __eq__(self, other):
+        """Equal"""
         selfn = self.normalized()
         othern = other.normalized()
-        return selfn.value == othern.value and selfn.dimensions == othern.dimensions 
+        return selfn.value == othern.value and selfn.dimensions == othern.dimensions
 
     def __ne__(self, other):
+        """Not Equal"""
         selfn = self.normalized()
         othern = other.normalized()
         return selfn.value != othern.value or selfn.dimensions != othern.dimensions
 
     def __lt__(self, other):
+        """Less than"""
         selfn = self.normalized()
         othern = other.normalized()
         return selfn.value < othern.value and selfn.dimensions == othern.dimensions
 
     def __gt__(self, other):
+        """Greater than"""
         selfn = self.normalized()
         othern = other.normalized()
         return selfn.value > othern.value and selfn.dimensions == othern.dimensions
 
     def __le__(self, other):
+        """Less or equal"""
         selfn = self.normalized()
         othern = other.normalized()
         return selfn.value <= othern.value and selfn.dimensions == othern.dimensions
 
     def __ge__(self, other):
+        """Greater or equal"""
         selfn = self.normalized()
         othern = other.normalized()
         return selfn.value >= othern.value and selfn.dimensions == othern.dimensions
 
     def as_absolute(self, name):
+        """Cast to a value of a named unit,respecting offsets as to get an absolute value"""
         unit = _name_to_unit(name)
         if self.dimensions != unit["dim_array"]:
             raise RuntimeError("Unit mismatch for absolute cast")
@@ -332,17 +344,20 @@ class PhysicalQuantity:
         return PhysicalQuantity((nself.value - unit["offset"]) / unit["scale"], name)
 
     def as_relative(self, name):
+        """Cast to a value of a named unit, discarding offsets as to get a relative value"""
         unit = _name_to_unit(name)
         if self.dimensions != unit["dim_array"]:
             raise RuntimeError("Unit mismatch for absolute cast")
         nself = self.normalized()
         return PhysicalQuantity(nself.value / unit["scale"], name)
-       
+
     def same_dimensions(self, name):
+        """Check if a PhysicalQuantity has the same dimensions as a named unit"""
         unit = _name_to_unit(name)
         return self.dimensions == unit["dim_array"]
 
     def as_dict(self):
+        """Serializable dict of PhysicalQuantity"""
         result = {}
         result["value"] = self.value
         if self.unit_name is None:
@@ -366,9 +381,11 @@ class PhysicalQuantity:
         return result
 
     def json(self):
+        """JSON serialzation of PhysicalQuantity"""
         return json.dumps(self.as_dict(), indent=4, sort_keys=True)
 
 def from_dict(quantity_dict):
+    """Re-create a PhysicalQuantity from a serializable dict"""
     if "value" not in quantity_dict:
         raise RuntimeError("No value key in dict")
     if "unit" not in quantity_dict:
@@ -399,4 +416,3 @@ def from_dict(quantity_dict):
         else:
             dimension_array.append(0)
     return PhysicalQuantity(quantity_dict["value"], None, dimension_array, scale, offset)
-    
