@@ -60,7 +60,7 @@ TRANSPOSED_UNITS = {
   "day":       {"dimensions": {"time": 1}, "scale": 86400},
   "year":      {"dimensions": {"time": 1}, "scale": 31557600},
   "celcius":   {"dimensions": {"temperature": 1}, "offset": 273.15},
-  "fahrenheid":{"dimensions": {"temperature": 1}, "offset": 255.3722, "scale": 0.5555555556},
+  "fahrenheit":{"dimensions": {"temperature": 1}, "offset": 255.3722, "scale": 0.5555555556},
   "are":       {"dimensions": {"length": 2}, "scale": 100},
   "hectare":   {"dimensions": {"length": 2}, "scale": 10000},
   "acre":      {"dimensions": {"length": 2}, "scale": 4046.86},
@@ -120,7 +120,7 @@ ISO_PREFIX = {
   "deca":  10,
   "deci":  0.1,
   "centi": 0.01,
-  "mili":  0.001,
+  "milli": 0.001,
   "micro": 0.000001,
   "nano":  0.000000001,
   "pico":  0.000000000001,
@@ -138,26 +138,32 @@ def _name_to_unit(name):
     uses_prefix = False
     full_prefix = ""
     fullname = name
-    for prefix,scale in ISO_PREFIX.items():
+    for prefix,mscale in ISO_PREFIX.items():
         if name.startswith(prefix):
+            print("RESCALING:", prefix, mscale)
             name = name[len(prefix):]
-            rescale *= scale
+            rescale *= mscale
             full_prefix += prefix
     if name in ISO_UNITS:
-        unit = ISO_UNITS[name]
+        print("Using ISO_UNITS")
+        unit = ISO_UNITS[name].copy()
         unit_name = fullname
     elif name in TRANSPOSED_UNITS:
-        unit = TRANSPOSED_UNITS[name]
+        print("Using TRANSPOSED_UNITS", name, TRANSPOSED_UNITS[name])
+        unit = TRANSPOSED_UNITS[name].copy()
         unit_name = fullname
     else:
         unit = None
         for key, value in UNIT_ALIAS.items():
             if name in value:
+                print("Using UNIT_ALIAS", name, key, value)
                 if key in ISO_UNITS:
-                    unit = ISO_UNITS[key]
+                    print("Alias to ISO_UNITS")
+                    unit = ISO_UNITS[key].copy()
                     unit_name = full_prefix + key
                 elif key in TRANSPOSED_UNITS:
-                    unit = TRANSPOSED_UNITS[name]
+                    print("Alias to TRANSPOSED_UNITS")
+                    unit = TRANSPOSED_UNITS[name].copy()
                     unit_name = full_prefix + key
                 else:
                     raise RuntimeError("Invalid unit name for physical quantity")
@@ -192,6 +198,7 @@ def _name_to_unit(name):
     unit["unit_name"] = unit_name
     unit["offset"] = offset
     unit["scale"] = scale
+    print(name, unit)
     return unit
 
 def _find_si_name(dimarr):
