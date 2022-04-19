@@ -247,8 +247,13 @@ class PhysicalQuantity:
 
     def __mul__(self, other):
         """Multiplication"""
+        if not isinstance(other, (PhysicalQuantity, int, float)):
+            raise RuntimeError("Can only multiply with PhysicalQuantity, int or float")
         selfn = self.normalized()
-        othern = other.normalized()
+        if isinstance(other, PhysicalQuantity):
+            othern = other.normalized()
+        else:
+            othern = PhysicalQuantity(other)
         result_dimensions = [x + y for (x, y) in zip(selfn.dimensions, othern.dimensions)]
         result_value = selfn.value * othern.value
         si_name = _find_si_name(result_dimensions)
@@ -256,10 +261,21 @@ class PhysicalQuantity:
             return PhysicalQuantity(result_value, None, result_dimensions)
         return PhysicalQuantity(result_value, si_name)
 
+    def __rmul__(self, other):
+        """Something multiplied by self"""
+        if not isinstance(other, (int, float)):
+            raise RuntimeError("Non numeric used in subtraction")
+        return self * other
+
     def __truediv__(self, other):
         """Division"""
+        if not isinstance(other, (PhysicalQuantity, int, float)):
+            raise RuntimeError("Can only divide by PhysicalQuantity, int or float")
         selfn = self.normalized()
-        othern = other.normalized()
+        if isinstance(other, PhysicalQuantity):
+            othern = other.normalized()
+        else:
+            othern = PhysicalQuantity(other)
         result_dimensions = [x - y for (x, y) in zip(selfn.dimensions, othern.dimensions)]
         result_value = selfn.value / othern.value
         si_name = _find_si_name(result_dimensions)
@@ -267,29 +283,62 @@ class PhysicalQuantity:
             return PhysicalQuantity(result_value, None, result_dimensions)
         return PhysicalQuantity(result_value, si_name)
 
+    def __rtruediv__(self, other):
+        """Something divided by self"""
+        if not isinstance(other, (int, float)):
+            raise RuntimeError("Non numeric used in division")
+        return PhysicalQuantity(other) / self
+
     def __add__(self, other):
+        if not isinstance(other, (PhysicalQuantity, int, float)):
+            raise RuntimeError("Can only add a PhysicalQuantity, int or float")
         selfn = self.normalized()
-        othern = other.normalized()
+        if isinstance(other, PhysicalQuantity):
+            othern = other.normalized()
+        else:
+            othern = PhysicalQuantity(other)
         if selfn.dimensions != othern.dimensions:
             raise RuntimeError("Can't add up physical quantities with non-matching units")
         if selfn.unit_name is None:
             return PhysicalQuantity(selfn.value + othern.value, None, selfn.dimensions)
         return PhysicalQuantity(selfn.value + othern.value, selfn.unit_name)
 
+    def __radd__(self, other):
+        """Something plus self"""
+        if not isinstance(other, (int, float)):
+            raise RuntimeError("Non numeric used in addition")
+        return self + other
+
     def __sub__(self, other):
         """Subtract"""
+        if not isinstance(other, (PhysicalQuantity, int, float)):
+            raise RuntimeError("Can only subtract a PhysicalQuantity, int or float")
         selfn = self.normalized()
-        othern = other.normalized()
+        if isinstance(other, PhysicalQuantity):
+            othern = other.normalized()
+        else:
+            othern = PhysicalQuantity(other)
         if selfn.dimensions != othern.dimensions:
             raise RuntimeError("Can't add up physical quantities with non-matching units")
         if selfn.unit_name is None:
             return PhysicalQuantity(selfn.value - othern.value, None, selfn.dimensions)
         return PhysicalQuantity(selfn.value - othern.value, selfn.unit_name)
 
+    def __rsub__(self, other):
+        """Something minus self"""
+        if not isinstance(other, (int, float)):
+            raise RuntimeError("Non numeric used in subtraction")
+        return PhysicalQuantity(other) - self
+
     def __pow__(self, other):
         """To the power"""
+        if not isinstance(other, (PhysicalQuantity, int, float)):
+            raise RuntimeError("Can only exponentialize with PhysicalQuantity, int or float")
         selfn = self.normalized()
-        othern = other.normalized()
+        if isinstance(other, PhysicalQuantity):
+            othern = other.normalized()
+        else:
+            othern = PhysicalQuantity(other)
         if othern.dimensions != [0,0,0,0,0,0,0]:
             raise RuntimeError("Can only raise to a dimensionless power")
         result_dimensions = [x * othern.value for x in selfn.dimensions]
@@ -299,40 +348,76 @@ class PhysicalQuantity:
             return PhysicalQuantity(result_value, None, result_dimensions)
         return PhysicalQuantity(result_value, si_name)
 
+    def __rpow__(self, other):
+        """Something to the power of self"""
+        if not isinstance(other, (int, float)):
+            raise RuntimeError("Non numeric used in exponentiation")
+        return PhysicalQuantity(other) ** self
+
     def __eq__(self, other):
         """Equal"""
         selfn = self.normalized()
-        othern = other.normalized()
+        if not isinstance(other, (PhysicalQuantity, int, float)):
+            raise RuntimeError("Can only compare with PhysicalQuantity, int or float")
+        if isinstance(other, PhysicalQuantity):
+            othern = other.normalized()
+        else:
+            othern = PhysicalQuantity(other)
         return selfn.value == othern.value and selfn.dimensions == othern.dimensions
 
     def __ne__(self, other):
         """Not Equal"""
         selfn = self.normalized()
-        othern = other.normalized()
+        if not isinstance(other, (PhysicalQuantity, int, float)):
+            raise RuntimeError("Can only compare with PhysicalQuantity, int or float")
+        if isinstance(other, PhysicalQuantity):
+            othern = other.normalized()
+        else:
+            othern = PhysicalQuantity(other)
         return selfn.value != othern.value or selfn.dimensions != othern.dimensions
 
     def __lt__(self, other):
         """Less than"""
         selfn = self.normalized()
-        othern = other.normalized()
+        if not isinstance(other, (PhysicalQuantity, int, float)):
+            raise RuntimeError("Can only compare with PhysicalQuantity, int or float")
+        if isinstance(other, PhysicalQuantity):
+            othern = other.normalized()
+        else:
+            othern = PhysicalQuantity(other)
         return selfn.value < othern.value and selfn.dimensions == othern.dimensions
 
     def __gt__(self, other):
         """Greater than"""
         selfn = self.normalized()
-        othern = other.normalized()
+        if not isinstance(other, (PhysicalQuantity, int, float)):
+            raise RuntimeError("Can only compare with PhysicalQuantity, int or float")
+        if isinstance(other, PhysicalQuantity):
+            othern = other.normalized()
+        else:
+            othern = PhysicalQuantity(other)
         return selfn.value > othern.value and selfn.dimensions == othern.dimensions
 
     def __le__(self, other):
         """Less or equal"""
         selfn = self.normalized()
-        othern = other.normalized()
+        if not isinstance(other, (PhysicalQuantity, int, float)):
+            raise RuntimeError("Can only compare with PhysicalQuantity, int or float")
+        if isinstance(other, PhysicalQuantity):
+            othern = other.normalized()
+        else:
+            othern = PhysicalQuantity(other)
         return selfn.value <= othern.value and selfn.dimensions == othern.dimensions
 
     def __ge__(self, other):
         """Greater or equal"""
         selfn = self.normalized()
-        othern = other.normalized()
+        if not isinstance(other, (PhysicalQuantity, int, float)):
+            raise RuntimeError("Can only compare with PhysicalQuantity, int or float")
+        if isinstance(other, PhysicalQuantity):
+            othern = other.normalized()
+        else:
+            othern = PhysicalQuantity(other)
         return selfn.value >= othern.value and selfn.dimensions == othern.dimensions
 
     def as_absolute(self, name):
