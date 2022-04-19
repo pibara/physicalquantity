@@ -245,7 +245,7 @@ class PhysicalQuantity:
         othern = other.normalized()
         result_dimensions = [x + y for (x, y) in zip(selfn.dimensions, othern.dimensions)]
         result_value = selfn.value * othern.value
-        si_name = _find_si_name(self.dimensions)
+        si_name = _find_si_name(result_dimensions)
         if si_name is None:
             return PhysicalQuantity(result_value, None, result_dimensions)
         return PhysicalQuantity(result_value, si_name)
@@ -255,7 +255,7 @@ class PhysicalQuantity:
         othern = other.normalized()
         result_dimensions = [x - y for (x, y) in zip(selfn.dimensions, othern.dimensions)]
         result_value = selfn.value / othern.value
-        si_name = _find_si_name(self.dimensions)
+        si_name = _find_si_name(result_dimensions)
         if si_name is None:
             return PhysicalQuantity(result_value, None, result_dimensions)
         return PhysicalQuantity(result_value, si_name)
