@@ -140,29 +140,23 @@ def _name_to_unit(name):
     fullname = name
     for prefix,mscale in ISO_PREFIX.items():
         if name.startswith(prefix):
-            print("RESCALING:", prefix, mscale)
             name = name[len(prefix):]
             rescale *= mscale
             full_prefix += prefix
     if name in ISO_UNITS:
-        print("Using ISO_UNITS")
         unit = ISO_UNITS[name].copy()
         unit_name = fullname
     elif name in TRANSPOSED_UNITS:
-        print("Using TRANSPOSED_UNITS", name, TRANSPOSED_UNITS[name])
         unit = TRANSPOSED_UNITS[name].copy()
         unit_name = fullname
     else:
         unit = None
         for key, value in UNIT_ALIAS.items():
             if name in value:
-                print("Using UNIT_ALIAS", name, key, value)
                 if key in ISO_UNITS:
-                    print("Alias to ISO_UNITS")
                     unit = ISO_UNITS[key].copy()
                     unit_name = full_prefix + key
                 elif key in TRANSPOSED_UNITS:
-                    print("Alias to TRANSPOSED_UNITS")
                     unit = TRANSPOSED_UNITS[name].copy()
                     unit_name = full_prefix + key
                 else:
@@ -198,7 +192,6 @@ def _name_to_unit(name):
     unit["unit_name"] = unit_name
     unit["offset"] = offset
     unit["scale"] = scale
-    print(name, unit)
     return unit
 
 def _find_si_name(dimarr):
@@ -225,7 +218,7 @@ def _find_si_name(dimarr):
 class PhysicalQuantity:
     def __init__(
             self,
-            value,
+            value=0.0,
             name="one",
             dimensions=None,
             scale=1.0,
