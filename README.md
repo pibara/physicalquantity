@@ -284,6 +284,8 @@ if voltage2 > voltage1:
 
 While PhysicalQuantity has a *json* method for serializing a single PhysicalQuantity as JSON, the expected usage would be the use of a serializable PhysicalQuantity structure as part of a larger structure.
 
+
+A sample of serialization:
 ```python
 import json
 from physicalquantity import PhysicalQuantity as PQ
@@ -294,6 +296,8 @@ collections["distance"] = PQ(1,"attoparsec").normalized().as_dict()
 serialized = json.dumps(collection)
 ```
 
+And deserialization:
+
 ```python
 import json
 from physicalquantity import PhysicalQuantity as PQ
@@ -303,3 +307,42 @@ collection = json.loads(serialized)
 temperature = pq_from_dict(collection["temperature"])
 ```
 
+A serialized version of a PhysicalQuantity can look something like this for values that map to units:
+
+```json
+{
+  "value": 0.03085677581279959,
+  "unit": "metre"
+}
+```
+
+Or if there is no unit name to map to, a more verbose representation, here for acceleration:
+
+```json
+{
+  "value": 17.0,
+  "unit": {
+    "dimensions": {
+      "length": 1, 
+      "time": -2
+    }
+  }
+}
+```
+
+Note that even a PhysicalQuantity that doesn't make any sense that is a result of operations with PhysicalQuantity units is still serializable:
+
+```json
+{
+  "value": 8.0,
+  "unit": {
+    "dimensions": {
+      "length": 3,
+      "mass": 1,
+      "time": -5,
+      "current": -1,
+      "substance": -1
+    }
+  }
+}
+```
