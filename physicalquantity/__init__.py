@@ -1,6 +1,9 @@
 #!/usr/bin/python3
 """Simple library for working with physical quantities"""
 import json
+from datetime import datetime
+from dateutil import parser
+import pytz
 
 ISO_UNITS = {
   "one":       {},
@@ -226,6 +229,10 @@ class PhysicalQuantity:
         """Constructor"""
         # pylint: disable=too-many-arguments
         self.value = value
+        if name == "time" and isinstance(value, str):
+            self.value = parser.parse(value).timestamp()
+        elif not isinstance(value, (int, float)):
+            raise RuntimeError("value should be a number")
         if name is None and dimensions is not None:
             self.dimensions = dimensions
             self.unit_name = None
@@ -436,12 +443,18 @@ class PhysicalQuantity:
         nself = self.normalized()
         return PhysicalQuantity(nself.value / unit["scale"], name)
 
+    def as_iso8601(self):
+        if not self.same_dimensions("time"):
+            raise RuntimeError("Only physical quanties with time dimensions can be fetched as iso8601")
+        tz = pytz.timezone('UTC')
+        return datetime.fromtimestamp(self.normalized().value, tz).isoformat()
+
     def same_dimensions(self, name):
         """Check if a PhysicalQuantity has the same dimensions as a named unit"""
         unit = _name_to_unit(name)
         return self.dimensions == unit["dim_array"]
 
-    def as_dict(self):
+    def as_dict(self, use_iso8601=False):
         """Serializable dict of PhysicalQuantity"""
         result = {}
         result["value"] = self.value
@@ -463,11 +476,14 @@ class PhysicalQuantity:
                 result["unit"]["offset"] = self.offset
         else:
             result["unit"] = self.unit_name
+            if use_iso8601 and result["unit"] in ["second", "time", "seconds", "sec"]:
+                result["unit"] = "time"
+                result["value"] = self.as_iso8601()
         return result
 
-    def json(self):
+    def json(self, use_iso8601=False):
         """JSON serialzation of PhysicalQuantity"""
-        return json.dumps(self.as_dict(), indent=4, sort_keys=True)
+        return json.dumps(self.as_dict(use_iso8601), indent=4, sort_keys=True)
 
 def from_dict(quantity_dict):
     """Re-create a PhysicalQuantity from a serializable dict"""
