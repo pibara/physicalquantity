@@ -2,7 +2,7 @@
 
 A simple library for working with physical quantities. 
 Implements basic dimensional decomposition of physical quantities and provides
-basic operations (adition, subtraction, multiplication, division, comparison) 
+basic operations (addition, subtraction, multiplication, division, comparison) 
 for working with these quantities.
 
 Support for non-SI units is available but most operations will result in 
