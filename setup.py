@@ -37,7 +37,7 @@ setup(
         'Environment :: Other Environment'
     ],
     keywords='units quantities',
-    install_requires = ["python-dateutil", "pytz"]
+    install_requires = ["python-dateutil", "pytz"],
     packages=find_packages(),
 )
 
