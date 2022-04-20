@@ -295,6 +295,7 @@ from physicalquantity import PhysicalQuantity as PQ
 collection = {}
 collections["temperature"] = PQ(94, "fahrenheit").normalized().as_dict()
 collections["distance"] = PQ(1,"attoparsec").normalized().as_dict()
+collections["timestamp"] = PQ(datetime.datetime.now().timestamp(), "sec").as_dict(use_iso8601=True)
 serialized = json.dumps(collection)
 ```
 
