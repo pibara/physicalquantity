@@ -148,6 +148,9 @@ An other set of units are the transposed and/or scaled units. Note that when qua
   * lb
 * ounce
   * oz
+* stone
+  * stones
+  * st
 * minute
   * minutes
   * min

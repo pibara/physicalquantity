@@ -59,6 +59,7 @@ TRANSPOSED_UNITS = {
   "gram":      {"dimensions": {"mass": 1}, "scale": 0.001},
   "pound":     {"dimensions": {"mass": 1}, "scale": 0.45359},
   "ounce":     {"dimensions": {"mass": 1}, "scale": 0.02835},
+  "stone":     {"dimensions": {"mass": 1}, "scale": 6.3502934},
   "minute":    {"dimensions": {"time": 1}, "scale": 60},
   "hour":      {"dimensions": {"time": 1}, "scale": 3600},
   "day":       {"dimensions": {"time": 1}, "scale": 86400},
@@ -108,7 +109,8 @@ UNIT_ALIAS = {
     "grey": ["absorbedradiation", "sievert"],
     "m2": ["squaremetre"],
     "m3": ["cubicmetre"],
-    "litre": ["liter"]
+    "litre": ["liter"],
+    "stone": ["stones","st"] 
 }
 
 ISO_PREFIX = {
