@@ -49,6 +49,7 @@ NONAME_UNITS = {
 
 TRANSPOSED_UNITS = {
   "degrees":   {"scale": 0.017453292},
+  "coordinate": {"scale": 0.017453292},
   "foot":      {"dimensions": {"length": 1}, "scale": 0.3048},
   "inch":      {"dimensions": {"length": 1}, "scale": 0.0254},
   "mile":      {"dimensions": {"length": 1}, "scale": 1609.344},
@@ -73,11 +74,23 @@ TRANSPOSED_UNITS = {
   "litre":     {"dimensions": {"length": 3}, "scale": 0.001},
   "barrel":    {"dimensions": {"length": 3}, "scale": 0.158987294928},
   "gallon":    {"dimensions": {"length": 3}, "scale": 0.003785411784},
-  "pint":      {"dimensions": {"length": 3}, "scale": 0.000473176473}
+  "pint":      {"dimensions": {"length": 3}, "scale": 0.000473176473},
+  "radianpersecond": {"dimensions": {}, "scale": 3.14159265358979323846}
 }
 
 UNIT_ALIAS = {
-    "one": ["number", "radians", "dimentionless", "steradian"],
+    "one": [
+        "number",
+        "radians",
+        "one-radian",
+        "dimentionless",
+        "steradian",
+        "watt-db",
+        "one-db",
+        "one-undef",
+        "one-percentage",
+        "one-ppb"
+    ],
     "metre": ["meter", "meters","metres", "length", "m"],
     "foot": ["feet","ft"],
     "candela": ["intencity", "lumen", "illuminance"],
@@ -110,7 +123,7 @@ UNIT_ALIAS = {
     "m2": ["squaremetre"],
     "m3": ["cubicmetre"],
     "litre": ["liter"],
-    "stone": ["stones","st"] 
+    "stone": ["stones","st"]
 }
 
 ISO_PREFIX = {
@@ -446,10 +459,13 @@ class PhysicalQuantity:
         return PhysicalQuantity(nself.value / unit["scale"], name)
 
     def as_iso8601(self):
+        """Get as iso8601 datetime string"""
         if not self.same_dimensions("time"):
-            raise RuntimeError("Only physical quanties with time dimensions can be fetched as iso8601")
-        tz = pytz.timezone('UTC')
-        return datetime.fromtimestamp(self.normalized().value, tz).isoformat()
+            raise RuntimeError(
+                "Only physical quanties with time dimensions can be fetched as iso8601"
+            )
+        tzone = pytz.timezone('UTC')
+        return datetime.fromtimestamp(self.normalized().value, tzone).isoformat()
 
     def same_dimensions(self, name):
         """Check if a PhysicalQuantity has the same dimensions as a named unit"""
