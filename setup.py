@@ -6,7 +6,7 @@ here = path.abspath(path.dirname(__file__))
 
 setup(
     name='physicalquantity',
-    version='0.0.7',
+    version='0.0.8',
     description='Simple library for working with physical quantities',
     long_description="""A simple library for working with physical quantities. 
     Implements basic dimensional decomposition of physical quantities and provides

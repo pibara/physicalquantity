@@ -65,7 +65,7 @@ TRANSPOSED_UNITS = {
   "hour":      {"dimensions": {"time": 1}, "scale": 3600},
   "day":       {"dimensions": {"time": 1}, "scale": 86400},
   "year":      {"dimensions": {"time": 1}, "scale": 31557600},
-  "celcius":   {"dimensions": {"temperature": 1}, "offset": 273.15},
+  "celsius":   {"dimensions": {"temperature": 1}, "offset": 273.15},
   "fahrenheit":{"dimensions": {"temperature": 1}, "offset": 255.3722, "scale": 0.5555555556},
   "are":       {"dimensions": {"length": 2}, "scale": 100},
   "hectare":   {"dimensions": {"length": 2}, "scale": 10000},
