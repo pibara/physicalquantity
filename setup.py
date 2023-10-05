@@ -6,7 +6,7 @@ here = path.abspath(path.dirname(__file__))
 
 setup(
     name='physicalquantity',
-    version='0.0.9',
+    version='0.1.0',
     description='Simple library for working with physical quantities',
     long_description="""A simple library for working with physical quantities. 
     Implements basic dimensional decomposition of physical quantities and provides
@@ -37,7 +37,7 @@ setup(
         'Environment :: Other Environment'
     ],
     keywords='units quantities',
-    install_requires = ["python-dateutil", "pytz"],
+    install_requires = ["python-dateutil", "pytz", "simplejson"],
     packages=find_packages(),
 )
 

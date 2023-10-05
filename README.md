@@ -28,10 +28,12 @@ The PhysicalQuantity (in normal use) takes up to two arguments. The first argume
 We distinguish between:
 
 * si units
+* planck units
 * no-name units
 * transposed units
 * aliasses
 * prefixes
+* logaritmic units
 
 The following SI units (with aliasses) are currently defined.
 * one
@@ -101,10 +103,15 @@ The following SI units (with aliasses) are currently defined.
 * m3
   * cubicmetre
 
+All the above SI units have a **planck unit** defined as well. Please note that planck units for **substance** and **intensity** are not really defined but are needed for dimensional analysis and are therefore currently set to a 1:1 scale with the coresponding SI unit.
+
+
+
 ```python
 from physicalquantity import PhysicalQuantity as PQ
 
 force1 = PQ(40, "newton")
+length = PQ(17, "plancklengh")
 ```
 
 Next to these SI units we have a set of nameless units for what quantities are constructed using the name of the physical phenonemon.
@@ -121,10 +128,13 @@ Next to these SI units we have a set of nameless units for what quantities are c
 * massconcentration
 * luminance
 
+Just as with the named SI units, these units also have a planck units equivalent.
+
 ```python
 from physicalquantity import PhysicalQuantity as PQ
 
 acc1 = PQ(9.8, "acceleration") 
+spv = PQ(187, "planckspecificvolume")
 ```
 
 An other set of units are the transposed and/or scaled units. Note that when quantoties of these units are used with operators, the result will get normalized to their coresponding SI units.
@@ -172,6 +182,8 @@ An other set of units are the transposed and/or scaled units. Note that when qua
 * gallon
 * pint
 
+There are no planck unit equivalents for transposed units.
+
 ```python
 from physicalquantity import PhysicalQuantity as PQ
 
@@ -180,6 +192,8 @@ vol1 = PQ(22, "litre")
 
 Each of the units and their aliases may be prefixed with one of the metric prefixes
 
+* quetta
+* ronna
 * yotta
 * zetta
 * exa
@@ -200,11 +214,36 @@ Each of the units and their aliases may be prefixed with one of the metric prefi
 * atto
 * zepto
 * yocto
+* ronto
+* quecto
 
 ```python
 from physicalquantity import PhysicalQuantity as PQ
 
 res1 = PQ(2.4, "megaohm")   
+```
+
+# Logaritmic units support
+
+Logaritmic unit support is new to version 0.1 of physicalquantity and currently only works with construction, there is no two way support yet.
+On construction the supported logaritmic scale units will get instantly converted to the underlying lineair scale units.
+
+Currently supported logaritmic scale units are:
+
+* dB : Decibel scale for sound, translates to pascal
+* dBm : Decibel scale for power, translates to watt
+* dBW : Decibel scale for power, translates to watt
+* pitch : Logaritmic base 2 scale for frequency used in music. Translates to hertz.
+* dBV : Decibel scale for potential, translates to volt
+* dbA : Decibel scale for electrical current, translates to ampere
+
+## notes
+
+Because physicalquantity supports pitch, but music commonly uses notes rather than pitch numbers to denote musical tones,
+there is now a convenience function for creating a PhysicalQuantity from a two or three letter note string.
+
+```python
+freq1 = physicalquantity.from_note("C#6")
 ```
 
 # normalized
@@ -216,6 +255,14 @@ from physicalquantity import PhysicalQuantity as PQ
 
 temperature = PQ(79, "fahrenheit").normalized()  # normalize to Kelvin
 ```
+
+In cases where a planck units version exists, it is also possible to normalize to planck units instead of SI units.
+
+```
+temperature = PQ(79, "fahrenheit").normalized(planck_units=True)  # normalize to plancktemperature
+```
+
+Note that this method will throw a RuntimeError if normalization would lead to an undefined planck unit.
 
 # as\_absolute / as\_relative
 
@@ -244,7 +291,7 @@ distance = PQ(1,"attoparsec").as_absolute("centiinch").as_dict()
 
 # dimensions check
 
-Often you will want to check if a wuantity has the expected dimensions
+Often you will want to check if a quantity has the expected dimensions
 
 ```python
 assert temperature.same_dimensions("temperature")
@@ -302,6 +349,9 @@ collections["timestamp"] = PQ(datetime.datetime.now().timestamp(), "sec").as_dic
 serialized = json.dumps(collection)
 ```
 
+Not that both the **json** and the **as_dict** method have an optional boolean *decimal* argument. When used, higher precission floats (decimal.Decimal) will get used. These Decimal objects aren't serialized by the standard Python json module, but you can serialize them using the simplejson module instead.
+
+
 And deserialization:
 
 ```python
@@ -310,6 +360,17 @@ from physicalquantity import PhysicalQuantity as PQ
 from physicalquantity import from_dict as pq_from_dict
 
 collection = json.loads(serialized)
+temperature = pq_from_dict(collection["temperature"])
+```
+
+Or with simplejson:
+
+```python
+import simplejson
+from physicalquantity import PhysicalQuantity as PQ
+from physicalquantity import from_dict as pq_from_dict
+
+collection = simpleson.loads(serialized, use_decimal=True)
 temperature = pq_from_dict(collection["temperature"])
 ```
 
