@@ -29,7 +29,7 @@ def _get_planckunit_constants():
     # Planck time
     r["time"] = (ℏ * G / (c * c * c * c * c)).sqrt()
     # Planck current
-    r["current"] = (c * c * c * c * c * c /(k * G)).sqrt()
+    r["current"] = (c * c * c * c * c * c / (k * G)).sqrt()
     # Planck temperature
     r["temperature"] = (ℏ * c * c * c * c * c / (G * k * k)).sqrt()
     # Planck substance (doesn't exist, we just use 1 so everything can be normalized)
@@ -148,7 +148,9 @@ _TRANSPOSED_UNITS = {
   "litre":     {"dimensions": {"length": 3}, "scale": 0.001},
   "barrel":    {"dimensions": {"length": 3}, "scale": 0.158987294928},
   "gallon":    {"dimensions": {"length": 3}, "scale": 0.003785411784},
-  "pint":      {"dimensions": {"length": 3}, "scale": 0.000473176473},
+  "pint":         {"dimensions": {"length": 3}, "scale": 0.000473176473},
+  "knot":         {"dimensions": {"length": 1, "time": -1}, "scale": 0.5144444444},
+  "electronvolt": {"dimensions": {"length": 2, "mass": 1, "time": -2}, "scale": 1.60218e-19},
   "radianpersecond": {"dimensions": {}, "scale": 3.14159265358979323846},
   "plancklength": {"dimensions": {"length": 1}, "scale": 1.6162e-35},
   "planckmass": {"dimensions": {"mass": 1}, "scale": 2.1765e-8},
@@ -728,13 +730,15 @@ class PhysicalQuantity:  # pylint: disable=too-many-instance-attributes
 
     def __str__(self):
         as_dict = self.as_dict()
-        rval = str(as_dict["value"]) + " "
+        rval = str(as_dict["value"])
         if isinstance(as_dict["unit"], str):
-            rval += as_dict["unit"]
+            if as_dict["unit"] != "one":
+                rval += "  " + as_dict["unit"]
             return rval
         has_positive = False
         has_negative = False
         negative = "/"
+        first = True
         for pair in [["length","m"],
                      ["mass","Kg"],
                      ["time", "s"],
@@ -744,12 +748,18 @@ class PhysicalQuantity:  # pylint: disable=too-many-instance-attributes
                      ["intensity", "Cd"]]:
             if pair[0] in as_dict["unit"]["dimensions"]:
                 if as_dict["unit"]["dimensions"][pair[0]] > 0:
-                    rval += pair[1]
+                    if first:
+                        rval += " "
+                        first = False
+                    rval +=  pair[1]
                     has_positive = True
                 else:
                     negative += pair[1]
                     has_negative = True
         if not has_positive:
+            if first:
+                rval += " "
+                first = False
             rval += "1"
         if has_negative:
             rval += negative
